@@ -45,9 +45,17 @@ done
 
 /home/steam/steamcmd/steamcmd.sh +runscript /home/steam/install_starbound.txt
 
-find ${INSTALL_DIR}steamapps/workshop/content/211820/ -mindepth 1 -type d -exec sed -i "/assetDirectories/a \"{}\"," ${INSTALL_DIR}linux/sbinit.config \;
+if [ $? != 0 ] || [ ! -f /home/steam/starbound/linux/starbound_server ]; then
+    printf "SteamCMD failed to install Starbound, exiting.\n"
+    exit 1
+fi
+
+for mod in $(find ${INSTALL_DIR}steamapps/workshop/content/211820/ -mindepth 1 -type d); do
+  printf "Moving %s to %s\n" "$mod" "${INSTALL_DIR}mods/"
+  cp -r $mod ${INSTALL_DIR}mods/
+done
 
 touch ${INSTALL_DIR}installed
 unset DO_UPDATE
 
-printf "Install/Update sequence complete.\n"
+printf "Install/Update sequence complete. To update in the future, set envvar DO_UPDATE to true, and re-run install script.\n"
