@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: &name blocky
+    app.kubernetes.io/name: &name starbound
     app.kubernetes.io/instance: *name
     app.kubernetes.io/component: *name
     app.kubernetes.io/part-of: *name
