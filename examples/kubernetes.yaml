@@ -10,7 +10,7 @@ metadata:
     k8s-app: *name
   name: *name
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: *name
