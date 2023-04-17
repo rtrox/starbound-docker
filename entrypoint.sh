@@ -42,6 +42,10 @@ done
 
 printf "\n\nInstall/Update complete.\n"
 
+# Configure Server
+printf "Configuring Starbound server... "
+/home/steam/configure_server.sh
+printf "Done.\n"
 
 # Start Server
 printf "Starting Starbound server...\n"
@@ -49,11 +53,4 @@ cd ${INSTALL_DIR}linux/ && ./starbound_server &
 
 child=$!
 
-# Configure Server
-printf "Configuring Starbound server... "
-/home/steam/configure_server.sh
-printf "Done.\n"
-
 wait $child
-
-tail -f /dev/null
