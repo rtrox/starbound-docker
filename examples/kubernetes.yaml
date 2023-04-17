@@ -1,0 +1,129 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: &name blocky
+    app.kubernetes.io/instance: *name
+    app.kubernetes.io/component: *name
+    app.kubernetes.io/part-of: *name
+    k8s-app: *name
+  name: *name
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *name
+      app.kubernentes.io/component: *name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *name
+        app.kubernentes.io/component: *name
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: starbound-frackin-universe
+          image: ghcr.io/rtrox/starbound-docker:latest # Todo: Pin Version
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 8G
+            requests:
+              memory: 8G
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsUser: 1000
+              seccompProfile:
+                type: RuntimeDefault
+              capabilities:
+                drop:
+                  - ALL
+          ports:
+            - name: game
+              containerPort: 21025
+              protocol: TCP
+          env:
+            - name: STEAM_USERNAME
+              value: ${STEAM_USERNAME}
+            - name: STEAM_PASSWORD
+              value: ${STEAM_PASSWORD}
+            - name: STARBOUND_MODS
+              value: 1199608652,730544933,730745660,734170655,729558042,1432794738,2052758462,882900100,957141435,972085950,850109963,1429652829,731220462,729427436,1240923709,821455287,729492703,729480149,1411331676,730369958,729428280,729466018,729444820,1923815089,1635522739,1117007107,1772643711,2141522956,1639501560,1733755757,1109772923,792823395,1194878261,1300828186,1563376005,1686763043,1146396826,764888606,764887546,1103027918,2155713859,2260667955,2262354081,2375270402,2410311754,2638453727,1160106403
+          # TODO: figure out a good HC for Starbound.
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #     scheme: HTTP
+          #   initialDelaySeconds: 10
+          #   failureThreshold: 5
+          #   timeoutSeconds: 2
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #     scheme: HTTP
+          #   initialDelaySeconds: 10
+          #   failureThreshold: 5
+          #   timeoutSeconds: 2
+          # startupProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #     scheme: HTTP
+          #   initialDelaySeconds: 10
+          #   failureThreshold: 5
+          #   timeoutSeconds: 2
+          volumeMounts:
+            - mountPath: /home/steam/starbound
+              name: starbound-data
+      volumes:
+        - name: starbound-data
+          persistentVolumeClaim:
+            claimName: starbound-data
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: &pvcName starbound-data
+  labels:
+    app.kubernetes.io/name: *pvcName
+    app.kubernetes.io/instance: *pvcName
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: &serviceName starbound
+  labels:
+    app.kubernetes.io/name: *serviceName
+    app.kubernetes.io/instance: *serviceName
+    app.kubernetes.io/component: *serviceName
+    app.kubernetes.io/part-of: *serviceName
+    k8s-app: *serviceName
+  annotations:
+    io.cilium/lb-ipam-ips: "${STARBOUND_IP}"
+spec:
+  selector:
+    app.kubernetes.io/name: *serviceName
+    app.kubernetes.io/instance: *serviceName
+  ports:
+    - port: 21025
+      name: game
+      targetPort: game
+      protocol: TCP
+  type: LoadBalancer
+
+
+

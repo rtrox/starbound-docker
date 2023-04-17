@@ -1,0 +1,14 @@
+---
+name: Handle Push to Main Branch
+# https://dev.to/koddr/github-action-for-release-your-go-projects-as-fast-and-easily-as-possible-20a2
+# https://github.com/orgs/community/discussions/25244
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    uses: ./.github/workflows/docker-image.yaml
+    with:
+      push: true
