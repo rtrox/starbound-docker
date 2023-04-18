@@ -51,8 +51,10 @@ if [ $? != 0 ] || [ ! -f /home/steam/starbound/linux/starbound_server ]; then
 fi
 
 for mod in $(find ${INSTALL_DIR}steamapps/workshop/content/211820/ -mindepth 1 -type d); do
-  printf "Moving %s to %s\n" "$mod" "${INSTALL_DIR}mods/"
-  cp -r $mod ${INSTALL_DIR}mods/
+  if ! grep -q $mod ${INSTALL_DIR}linux/sbinit.config; then
+    printf "Adding %s to sbinit.config\n" "$mod"
+    sed -i "/\"\.\.\/assets\/\"/i\    \"$mod\"," ${INSTALL_DIR}linux/sbinit.config
+  fi
 done
 
 touch ${INSTALL_DIR}installed

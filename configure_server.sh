@@ -8,12 +8,13 @@ set -o pipefail  # trace ERR through pipes
 set -o errtrace  # trace ERR through 'time command' and other functions
 set -o errexit   # set -e : exit the script if any statement returns a non-true return value
 
-CONFIG_FILE="${HOMEDIR}/starbound/storage/starbound_server.config"
+CONFIG_FILE_DIR="${HOMEDIR}/starbound/storage"
+CONFIG_FILE="${CONFIG_FILE_DIR}/starbound_server.config"
 
-while [ ! -f ${CONFIG_FILE} ]; do
-    printf "."
-    sleep 1
-done
+if [ ! -f ${CONFIG_FILE} ]; then
+    mkdir -p ${CONFIG_FILE_DIR}
+    cp $HOMEDIR/starbound_server.config.template ${CONFIG_FILE}
+fi
 
 if ! [ -z ${SERVER_NAME+x} ]; then
     sed -i "s/\"serverName\".*$/\"serverName\" : \"${SERVER_NAME}\",/g" ${CONFIG_FILE}
